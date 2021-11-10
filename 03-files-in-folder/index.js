@@ -7,7 +7,7 @@ fs.readdir(__dirname + '/secret-folder', {withFileTypes: true}, (err, files) => 
       const fileModules = file.name.split('.');
       const fileExtension = fileModules.pop();
       const fileName = fileModules.join('.');
-      console.log(`${fileName} - ${fileExtension} - ${stats.size/1000}kb`);
+      console.log(`${fileName} - ${fileExtension} - ${(stats.size/1024).toFixed(3)}kb`);
     });
   });
 });
