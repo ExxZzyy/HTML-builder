@@ -13,10 +13,21 @@ const distUrl = `${__dirname}/project-dist`;
 
 async function replace(){
   let templateContent = await fs.readFile(`${srcUrl}/template.html`, 'utf-8');
-  const components = await Promise.all(templateContent.match(/(?<={{).*(?=}})/g).map(async (fileName) => [fileName, await fs.readFile(`${srcUrl}/components/${fileName}.html`)]));
+  const components = await Promise.all(templateContent.match(/(?<={{).*(?=}})/g).map(async (fileName) => [fileName, await (async function () {
+    try {
+      await fs.access(`${srcUrl}/components/${fileName}.html`);      
+      return await fs.readFile(`${srcUrl}/components/${fileName}.html`);
+    }
+    catch(err) {
+      if (err.code === 'ENOENT') console.log(`Компонент ${fileName}.html не найден`);
+      return '';
+    }
+  })()
+  ]));
   for(let [componentName, componentContent] of components){
     templateContent = templateContent.replace(`{{${componentName}}}`, componentContent);
   }
+
   await fs.writeFile(`${distUrl}/index.html`, templateContent);
 }
 
